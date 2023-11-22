@@ -1,0 +1,60 @@
+<button pButton pRipple class="btn-space" (click)="tableReset()" label="Table Reset"></button>
+
+<p-orderList [value]="cols" [dragdrop]="true">
+  <ng-template let-col pTemplate="item">
+    <button pButton pRipple class="btn-space" [ngClass]="{ 'p-button-success': col.show }"
+      (click)="addRemoveColumn(col)" [label]="col.header"></button>
+  </ng-template>
+</p-orderList>
+
+<p-table [columns]="cols" [value]="values" [scrollable]="ptableConfig.scrollable"
+  [scrollHeight]="ptableConfig.scrollHeight" [customSort]="ptableConfig.customSort"
+  (sortFunction)="ptableConfig.sortFunction($event)" [selectionMode]="ptableConfig.selectionMode"
+  [(selection)]="ptableConfig.selectedRows" [metaKeySelection]="ptableConfig.metaKeySelection"
+  [dataKey]="ptableConfig.dataKey" [virtualScroll]="ptableConfig.virtualScroll"
+  [virtualScrollItemSize]="ptableConfig.virtualScrollItemSize" (onRowSelect)="ptableConfig.onRowSelect($event)"
+  (onRowUnselect)="ptableConfig.onRowUnselect($event)" [resizableColumns]="ptableConfig.resizableColumns"
+  [columnResizeMode]="ptableConfig.columnResizeMode" (onColResize)="ptableConfig.onColResize($event)" [rowGroupMode]="ptableConfig.rowGroupMode"
+  [groupRowsBy]="ptableConfig.groupRowsBy" [id]="ptableConfig.id" #ptable>
+  <ng-template pTemplate="header" let-columns>
+    <tr [style.height.px]="ptableConfig.virtualScrollItemSize">
+      <ng-container *ngFor="let col of columns">
+        <th *ngIf="col.show" [pSortableColumn]="col.columnDef" [style.minWidth]="col.width.min"
+          [style.width]="col.width.max" [style.maxWidth]="col.width.max" [id]="col.id(col, 'header')"
+          [pResizableColumnDisabled]="ptableConfig.pResizableColumnDisabled" pResizableColumn>
+          <div class="truncate">
+            {{ col.header }}
+          </div>
+        </th>
+      </ng-container>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="body" let-rowData let-columns="columns" let-rowIndex="rowIndex" let-rowgroup="rowgroup"
+    let-rowspan="rowspan">
+    <tr [style.height.px]="ptableConfig.virtualScrollItemSize" [pSelectableRow]="rowData"
+      [pSelectableRowIndex]="rowIndex">
+      <ng-container *ngFor="let col of columns">
+        <ng-container *ngIf="col.show">
+          <td *ngIf="rowgroup && col.isRowgroup" [attr.rowspan]="rowspan" [style.minWidth]="col.width.min"
+            [style.width]="col.width.max" [style.maxWidth]="col.width.max" [id]="col.id(col, rowIndex)">
+            <ng-container *ngTemplateOutlet="bodyContent; context: {'col': col, 'rowData': rowData, }" />
+          </td>
+
+          <td *ngIf="!(rowgroup && col.isRowgroup) && !col.isRowgroup" [style.minWidth]="col.width.min"
+            [style.width]="col.width.max" [style.maxWidth]="col.width.max" [id]="col.id(col, rowIndex)">
+            <ng-container *ngTemplateOutlet="bodyContent; context: {'col': col, 'rowData': rowData, }" />
+          </td>
+        </ng-container>
+      </ng-container>
+    </tr>
+  </ng-template>
+
+  <ng-template #bodyContent let-rowData="rowData" let-col="col">
+    <ng-container *ngIf="col.type === 'text'">
+      <div class="truncate" #text>
+        {{ col.value(rowData) }}
+      </div>
+    </ng-container>
+  </ng-template>
+</p-table>
